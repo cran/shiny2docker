@@ -12,7 +12,7 @@
 
 <meta name="author" content="Your Name" />
 
-<meta name="date" content="2025-02-04" />
+<meta name="date" content="2025-02-08" />
 
 <title>Containerizing Shiny Applications with shiny2docker</title>
 
@@ -62,7 +62,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -341,7 +341,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h1 class="title toc-ignore">Containerizing Shiny Applications with
 shiny2docker</h1>
 <h4 class="author">Your Name</h4>
-<h4 class="date">2025-02-04</h4>
+<h4 class="date">2025-02-08</h4>
 
 
 
@@ -391,28 +391,41 @@ you may want to set an environment variable:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Create the dockerfiler object</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>docker_obj <span class="ot">&lt;-</span> <span class="fu">shiny2docker</span>()</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># Add an environment variable</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>docker_obj<span class="sc">$</span><span class="fu">ENV</span>(<span class="st">&quot;MY_ENV_VAR&quot;</span>, <span class="st">&quot;my_value&quot;</span>)</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co"># Write the updated Dockerfile to disk</span></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>docker_obj<span class="sc">$</span><span class="fu">write</span>(<span class="st">&quot;Dockerfile&quot;</span>)</span></code></pre></div>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># Add environment variables</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>docker_obj<span class="sc">$</span><span class="fu">add_after</span>(  <span class="at">cmd =</span> <span class="st">&quot;ENV ARROW_WITH_S3=1&quot;</span>,  <span class="at">after =</span> <span class="dv">1</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>docker_obj<span class="sc">$</span><span class="fu">add_after</span>(  <span class="at">cmd =</span> <span class="st">&quot;ENV ARROW_S3=ON&quot;</span>,<span class="at">after =</span> <span class="dv">1</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co"># Write the updated Dockerfile to disk</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>docker_obj<span class="sc">$</span><span class="fu">write</span>(<span class="st">&quot;Dockerfile&quot;</span>)</span></code></pre></div>
 </div>
-<div id="configuring-gitlab-ci-for-docker-builds" class="section level1">
-<h1>Configuring GitLab CI for Docker Builds</h1>
-<p>The package also provides the <code>set_gitlab_ci()</code> function,
-which simplifies the process of configuring a GitLab CI pipeline. This
-pipeline is designed to build your Docker image and push it to the
-GitLab container registry.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">library</span>(shiny2docker)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co"># Copy the .gitlab-ci.yml file to the current directory</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="fu">set_gitlab_ci</span>()</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co"># Or copy the file to a specific directory (e.g., your project folder)</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="fu">set_gitlab_ci</span>(<span class="st">&quot;my_project&quot;</span>)</span></code></pre></div>
+<div id="configuring-cicd-for-docker-builds" class="section level1">
+<h1>Configuring CI/CD for Docker Builds</h1>
+<div id="gitlab-ci-for-docker-builds" class="section level2">
+<h2>GitLab CI for Docker Builds</h2>
+<p>The package provides the <code>set_gitlab_ci()</code> function to
+simplify the process of configuring a GitLab CI pipeline. This pipeline
+is designed to build your Docker image and push it to the GitLab
+container registry.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Copy the .gitlab-ci.yml file to the current directory</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">set_gitlab_ci</span>(<span class="at">path =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
 <p>Once the <code>.gitlab-ci.yml</code> file is in place, you can
-integrate with GitLab CI/CD to automate the Docker image build and
+integrate it with GitLab CI/CD to automate your Docker image build and
 deployment process.</p>
+</div>
+<div id="github-actions-for-docker-builds" class="section level2">
+<h2>GitHub Actions for Docker Builds</h2>
+<p>The package also provides the <code>set_github_action()</code>
+function, which simplifies the process of configuring a GitHub Actions
+pipeline. This pipeline is designed to build your Docker image and push
+the created image to the GitHub Container Registry.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Copy the docker-build.yml file to the .github/workflows/ directory</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">set_github_action</span>(<span class="at">path =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
+<p>Once the <code>docker-build.yml</code> file is in place, you can
+integrate it with GitHub Actions to automate the Docker image build and
+deployment process, allowing you to continuously build and deploy your
+containerized Shiny applications.</p>
+</div>
 </div>
 <div id="conclusion" class="section level1">
 <h1>Conclusion</h1>
